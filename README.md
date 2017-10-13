@@ -17,6 +17,11 @@ If you already have some webserver on port `80`, make redirect from `front.battl
 
 Use Google Chrome for better experience
 
+### Доступ к API через HTTP
+1. Start PUBG lobby proxy
+2. Login to game
+3. Send requests to `http://127.0.0.1/api/:interface/:method/` (For example: `http://127.0.0.1/api/UserProxyApi/GetOpenGameInfo/`)(Use `POST` with json body for requests with arguments, flags, etc)
+
 ## Русский
 Простой способ просмотра и редактирования трафика лобби игры PLAYERUNKNOWN'S BATTLEGROUNDS
 
@@ -30,7 +35,12 @@ Use Google Chrome for better experience
 
 ### Отладка лобби PUBG в браузере
 1. Запусти прокси
-2. Авторизируйте в игре
+2. Авторизируйся в игре
 3. Перейди в браузере `http://127.0.0.1/debug.html`
 
 Лучше всего работает в Google Chrome
+
+### Доступ к API через HTTP
+1. Запусти прокси
+2. Авторизируйся в игре
+3. Отправляй запросы на url вида `http://127.0.0.1/api/:interface/:method/` (Например, `http://127.0.0.1/api/UserProxyApi/GetOpenGameInfo/`)(Используй `POST` с json телом для запросов с аргументами, флагами и т.д.)

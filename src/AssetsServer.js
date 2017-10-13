@@ -33,7 +33,7 @@ class AssetsServer {
         this.express.use(bodyParser.json());
         this.express.get('/index.html', this.handleIndexRequest.bind(this));
         this.express.get('/debug.html', this.handleDebugRequest.bind(this));
-        this.express.post('/api/:interface/:method', this.handleApiRequest.bind(this));
+        this.express.use('/api/:interface/:method', this.handleApiRequest.bind(this));
         this.express.use(this.proxyAssets.bind(this));
         this.server = this.express.listen(this.port, () => {
             console.log(`Assets server started at http://localhost:${this.port}`);
