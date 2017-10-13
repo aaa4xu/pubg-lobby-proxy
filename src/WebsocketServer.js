@@ -51,7 +51,9 @@ class WebsocketServer {
 
         pubgClient.on('void', data => {
             console.log('S->C:', data);
-            clientSocket.send(JSON.stringify(data));
+            try {
+                clientSocket.send(JSON.stringify(data));
+            } catch(ignored) {}
         });
 
         pubgClient.on('error', err => {
