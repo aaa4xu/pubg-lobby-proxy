@@ -4,6 +4,8 @@
   "description": "Eazy way to view and modify PLAYERUNKNOWN'S BATTLEGROUNDS lobby traffic",
   "main": "index.js",
   "dependencies": {
+    "body-parser": "^1.18.2",
+    "debug": "^3.1.0",
     "express": "^4.16.1",
     "http-proxy": "^1.16.2",
     "md5": "^2.2.1",

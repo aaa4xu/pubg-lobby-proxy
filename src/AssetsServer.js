@@ -5,6 +5,8 @@ const path = require('path');
 const fs = require('fs');
 const md5 = require('md5');
 const {promisify} = require('util');
+const bodyParser = require('body-parser');
+const PubgRequest = require('./Pubg/PubgRequest');
 
 const exists = promisify(fs.exists);
 const readFile = promisify(fs.readFile);
@@ -28,12 +30,41 @@ class AssetsServer {
 
     start() {
         this.express = express();
+        this.express.use(bodyParser.json());
         this.express.get('/index.html', this.handleIndexRequest.bind(this));
         this.express.get('/debug.html', this.handleDebugRequest.bind(this));
+        this.express.post('/api/:interface/:method', this.handleApiRequest.bind(this));
         this.express.use(this.proxyAssets.bind(this));
         this.server = this.express.listen(this.port, () => {
             console.log(`Assets server started at http://localhost:${this.port}`);
         });
+    }
+
+    handleApiRequest(req, res) {
+        const params = {
+            ...{type: PubgRequest.TYPES.NORMAL, flags: null, arguments: []},
+            ...req.body,
+            ...req.params,
+        };
+
+        if(!this.wsServer.lastPubgClient) {
+            return res.json({
+                success: false,
+                error: 'Connection to game server dont exists',
+            });
+        }
+
+        this.wsServer.lastPubgClient.execute(params.interface, params.method, params.arguments, params.flags, params.type).then(result => {
+            res.json({
+                success: true,
+                result,
+            });
+        }).catch(err => {
+            res.status(500).json({
+                success: false,
+                error: err.message,
+            });
+        })
     }
 
     handleIndexRequest(req, res) {
@@ -138,13 +169,12 @@ class AssetsServer {
         const cacheAssetDir = path.join(this.cachePath, pathInfo.dir);
         const cacheAssetPath = path.join(cacheAssetDir, `${pathInfo.name}${pathInfo.ext}`);
 
-        return this.ensureAssetCacheDirectory(cacheAssetDir).then(() => {
-            return exists(cacheAssetPath).then(exists => {
+        return this.ensureAssetCacheDirectory(cacheAssetDir)
+            .then(() => exists(cacheAssetPath))
+            .then(exists => {
                 if(!exists) throw new Error(`Asset cache dont exists`);
-
                 return readFile(cacheAssetPath, null);
             });
-        });
     }
 
     ensureAssetCacheDirectory(path) {
