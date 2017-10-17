@@ -7,6 +7,7 @@ const md5 = require('md5');
 const {promisify} = require('util');
 const bodyParser = require('body-parser');
 const PubgRequest = require('./Pubg/PubgRequest');
+const url = require('url');
 
 const exists = promisify(fs.exists);
 const readFile = promisify(fs.readFile);
@@ -32,6 +33,7 @@ class AssetsServer {
         this.express = express();
         this.express.use(bodyParser.json());
         this.express.get('/index.html', this.handleIndexRequest.bind(this));
+        this.express.get('/index-outer.html', this.handleIndexRequest.bind(this));
         this.express.get('/debug.html', this.handleDebugRequest.bind(this));
         this.express.use('/api/:interface/:method', this.handleApiRequest.bind(this));
         this.express.use(this.proxyAssets.bind(this));
@@ -68,8 +70,7 @@ class AssetsServer {
     }
 
     handleIndexRequest(req, res) {
-        // @TODO Cache
-        this.getFrontendUri().then(this.getFrontend.bind(this)).then(html => {
+        this.getFrontendUri(url.parse(req.url).pathname).then(this.getFrontend.bind(this)).then(html => {
             res.end(html);
         }).catch(err => {
             res.status(500).send('<h1>Error: ${err.message}</h1>');
@@ -119,10 +120,10 @@ class AssetsServer {
         this.proxy.web(req, res, { target: `https://${this.assetsUrl}/` });
     }
 
-    getFrontendUri() {
+    getFrontendUri(pageUrl = '/index.html') {
         return new Promise((resolve, reject) => {
             request({
-                url: 'http://13.32.118.176/index.html',
+                url: 'http://13.32.118.176'+ pageUrl,
                 gzip: true,
                 timeout: 5000,
                 headers: {
@@ -140,6 +141,8 @@ class AssetsServer {
     }
 
     getFrontend(url) {
+        console.log(`Frontend url: ${url}`);
+
         return new Promise((resolve, reject) => {
             request({
                 url,
