@@ -1,6 +1,5 @@
 const express = require('express');
-const request = require('request');
-const httpProxy = require('http-proxy');
+const requestJs = require('request');
 const path = require('path');
 const fs = require('fs');
 const md5 = require('md5');
@@ -8,37 +7,42 @@ const {promisify} = require('util');
 const bodyParser = require('body-parser');
 const PubgRequest = require('./Pubg/PubgRequest');
 const url = require('url');
+const dns = require('dns');
 
 const exists = promisify(fs.exists);
 const readFile = promisify(fs.readFile);
 const mkdirp = promisify(require('mkdirp'));
+const dnsResolve = promisify(dns.resolve4);
+const request = promisify(requestJs);
 
 const CACHE_EXTENSIONS = ['png', 'gif', 'jpg', 'woff', 'js'];
 
 class AssetsServer {
-    constructor(websocketServer, cachePath = null, port = 80, originalFrontend = 'front.battlegroundsgame.com', assetsUrl = 'prod-live-front.playbattlegrounds.com') {
-        this.frontend = originalFrontend;
+    constructor(websocketServer, cachePath = null, port = 8000, assetsUrl = 'prod-live-front.playbattlegrounds.com') {
         this.assetsUrl = assetsUrl;
         this.cachePath = cachePath;
         this.port = port;
         this.wsServer = websocketServer;
         this.server = null;
         this.express = null;
-        this.proxy = httpProxy.createProxyServer({ rejectUnauthorized: false });
+        this.assetsIp = null;
 
         this.start();
     }
 
     start() {
-        this.express = express();
-        this.express.use(bodyParser.json());
-        this.express.get('/index.html', this.handleIndexRequest.bind(this));
-        this.express.get('/index-outer.html', this.handleIndexRequest.bind(this));
-        this.express.get('/debug.html', this.handleDebugRequest.bind(this));
-        this.express.use('/api/:interface/:method', this.handleApiRequest.bind(this));
-        this.express.use(this.proxyAssets.bind(this));
-        this.server = this.express.listen(this.port, () => {
-            console.log(`Assets server started at http://localhost:${this.port}`);
+        dnsResolve(this.assetsUrl).then(ips => {
+            this.assetsIp = ips[Math.floor(Math.random()*ips.length)];
+            this.express = express();
+            this.express.use(bodyParser.json());
+            this.express.get('/index.html', this.handleIndexRequest.bind(this));
+            this.express.get('/index-outer.html', this.handleIndexRequest.bind(this));
+            this.express.get('/debug.html', this.handleDebugRequest.bind(this));
+            this.express.use('/api/:interface/:method', this.handleApiRequest.bind(this));
+            this.express.use(this.proxyAssets.bind(this));
+            this.server = this.express.listen(this.port, () => {
+                console.log(`Assets server started at http://localhost:${this.port}`);
+            });
         });
     }
 
@@ -73,7 +77,7 @@ class AssetsServer {
         this.getFrontendUri(url.parse(req.url).pathname).then(this.getFrontend.bind(this)).then(html => {
             res.end(html);
         }).catch(err => {
-            res.status(500).send('<h1>Error: ${err.message}</h1>');
+            res.status(500).send(`<h1>Error: ${err.message}</h1>`);
         });
     }
 
@@ -86,18 +90,13 @@ class AssetsServer {
     }
 
     proxyAssets(req, res, next) {
-        console.log('Assets:', req.url);
-
-        /*if(req.url === '/2017.09.14-2017.10.03-560/main.4a07a90c7d76689ac3c6.bundle.js') {
-            console.log('============================');
-            return promisify(fs.readFile)('./main.2955e9108ec5175f3c1c.bundle.js', 'utf8').then(content => res.end(content));
-        }*/
+        console.log('Asset:', req.url);
 
         if(this.cachePath !== null && CACHE_EXTENSIONS.indexOf(req.url.split('.').pop()) >= 0) {
             const pathInfo = path.parse(req.url.substr(1));
 
             return this.getAssetCache(pathInfo).catch(err => null).then(content => {
-                return this.downloadAsset(`https://${this.assetsUrl}${req.url}`, content).then(response => {
+                return this.downloadAsset(req.url, content).then(response => {
                     if(response.statusCode === 304) return content;
                     if(response.statusCode !== 200) throw new Error(`Asset downloading to cache error: statusCode=${response.statusCode}`);
 
@@ -110,61 +109,75 @@ class AssetsServer {
                     return response.body;
                 });
             }).then(content => {
+                const contentEtag = md5(content);
+
+                if(req.headers['if-none-match'] === contentEtag) {
+                    return res.status(304).end();
+                }
+
+                res.set('Etag', contentEtag);
                 res.end(content);
             }).catch(err => {
                 res.status(500).end(`<h1>Asset downloading error: ${err.message}</h1>`);
             });
         }
 
-        req.headers.host = this.assetsUrl;
-        this.proxy.web(req, res, { target: `https://${this.assetsUrl}/` });
+        request({
+            url: 'https://' + this.assetsIp + req.url,
+            headers: {
+                ...req.headers,
+                Host: this.assetsUrl,
+            },
+            encoding: null,
+        }).then(response => {
+            for(let header in response.headers) {
+                res.set(header, response.headers[header]);
+            }
+
+            res.end(response.body);
+        });
     }
 
     getFrontendUri(pageUrl = '/index.html') {
-        return new Promise((resolve, reject) => {
-            request({
-                url: 'http://13.32.118.176'+ pageUrl,
-                gzip: true,
-                timeout: 5000,
-                headers: {
-                    Host: this.frontend,
-                },
-            }, (err, response, html) => {
-                if(err) return reject(new Error('Cant get frontend redirect'));
+        return request({
+            url: 'https://' + this.assetsIp + pageUrl,
+            gzip: true,
+            timeout: 5000,
+            headers: {
+                Host: this.assetsUrl,
+            },
+        }).then(response => {
+            const uri = response.body.match(/location\.href='(.*?)\?'/i);
+            if(!uri) throw new Error('Cant get frontend url');
 
-                const uri = html.match(/location\.href='(.*?)\?'/i);
-                if(!uri) return reject(new Error('Cant get frontend url'));
-
-                resolve(uri[1]);
-            });
+            return uri[1];
         });
     }
 
     getFrontend(url) {
         console.log(`Frontend url: ${url}`);
 
-        return new Promise((resolve, reject) => {
-            request({
-                url,
-                gzip: true,
-                timeout: 1000,
-            }, (err, response, html) => err ? reject(err) : resolve(this.patchFrontendConfig(html)));
-        });
+        return request({
+            url: 'https://13.32.118.8'+ url.split('https://prod-live-front.playbattlegrounds.com').join(''),
+            headers: {
+                Host: 'prod-live-front.playbattlegrounds.com',
+            },
+            gzip: true,
+            timeout: 1000,
+        }).then(response => this.patchFrontendConfig(response.body));
     }
 
     downloadAsset(url, currentCache = null) {
-        const headers = {};
+        const headers = { Host: this.assetsUrl };
         if(currentCache) {
             headers['If-None-Match'] = md5(currentCache);
         }
 
-        return new Promise((resolve, reject) => {
-            request({
-                url,
-                encoding: null,
-                timeout: 5000,
-                headers,
-            }, (err, response) => err ? reject(err) : resolve(response));
+        return request({
+            url: 'https://13.32.118.8'+ url,
+            encoding: null,
+            timeout: 5000,
+            headers,
         });
     }
 
