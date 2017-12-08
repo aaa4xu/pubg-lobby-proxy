@@ -5,8 +5,12 @@ Eazy way to view and modify PLAYERUNKNOWN'S BATTLEGROUNDS lobby traffic
 ### Install
 1. Clone or download this repository
 2. Execute `npm install`
-3. Add to file `C:\Windows\System32\drivers\etc\hosts` new line `127.0.0.1 prod-live-front.playbattlegrounds.com`
-4. Execute `npm start`
+3. Append to file `C:\Windows\System32\drivers\etc\hosts` new lines
+```
+127.0.0.1 prod-live-front.playbattlegrounds.com
+127.0.0.1 test-live-front.playbattlegrounds.com
+```
+4. Execute `npm start` for production server or `npm run start:test` for test server
 
 If you already have some webserver on port `443`, make redirect from `front.battlegroundsgame.com` to `127.0.0.1:{someport}` and set this port inside `index.js`
 
@@ -28,8 +32,12 @@ Use Google Chrome for better experience
 ### Установка
 1. Склонируй или скачай код из этого репозитория
 2. Выполни `npm install`
-3. Добавь в файл `C:\Windows\System32\drivers\etc\hosts` новую строку `127.0.0.1 prod-live-front.playbattlegrounds.com`
-4. Выполни `npm start`
+3. Добавь в файл `C:\Windows\System32\drivers\etc\hosts` новые строки
+```
+127.0.0.1 prod-live-front.playbattlegrounds.com
+127.0.0.1 test-live-front.playbattlegrounds.com
+```
+4. Выполни `npm start` для публичного сервера или `npm run start: test` для тестового сервера
 
 Если у тебя уже висит вебсервер на порту `443`, сделай в нем редирект с `front.battlegroundsgame.com` на `127.0.0.1:{порт}` и измени порт в файле `index.js`
 

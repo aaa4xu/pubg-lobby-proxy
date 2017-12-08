@@ -15,7 +15,11 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "npm run start:prod",
+    "start:prod": "node index.js",
+    "watch:prod": "nodemon",
+    "start:test": "node index-test.js",
+    "watch:test": "nodemon --exec \"npm run start:test\""
   },
   "keywords": [],
   "author": "",

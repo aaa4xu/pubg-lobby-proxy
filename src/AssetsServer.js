@@ -36,6 +36,8 @@ class AssetsServer {
             this.express = express();
             this.express.use(bodyParser.json());
             this.express.get('/index.html', this.handleIndexRequest.bind(this));
+            this.express.get('/app/:version/index-:name.html', this.handleFrontendRequest.bind(this));
+            this.express.get('/:version/index-:name.html', this.handleFrontendRequest.bind(this));
             this.express.get('/index-outer.html', this.handleIndexRequest.bind(this));
             this.express.get('/debug.html', this.handleDebugRequest.bind(this));
             this.express.use('/api/:interface/:method', this.handleApiRequest.bind(this));
@@ -74,9 +76,18 @@ class AssetsServer {
     }
 
     handleIndexRequest(req, res) {
-        this.getFrontendUri(url.parse(req.url).pathname).then(this.getFrontend.bind(this)).then(html => {
+        const requestUri = url.parse(req.url);
+
+        this.getFrontendUri(requestUri.pathname).then(uri => {
+            res.redirect(url.parse(uri).path + (requestUri.search || ''));
+        });
+    }
+
+    handleFrontendRequest(req, res) {
+        this.getFrontend(url.parse(req.url).path).then(html => {
             res.end(html);
         }).catch(err => {
+            console.error(err.stack || err);
             res.status(500).send(`<h1>Error: ${err.message}</h1>`);
         });
     }
@@ -147,20 +158,20 @@ class AssetsServer {
                 Host: this.assetsUrl,
             },
         }).then(response => {
-            const uri = response.body.match(/location\.href='(.*?)\?'/i);
+            const uri = response.body.match(/location\.href=('|\")(.*?)\?/i);
             if(!uri) throw new Error('Cant get frontend url');
 
-            return uri[1];
+            return uri[2];
         });
     }
 
-    getFrontend(url) {
-        console.log(`Frontend url: ${url}`);
+    getFrontend(path) {
+        console.log(`Frontend url: https://${this.assetsUrl}${path}`);
 
         return request({
-            url: 'https://13.32.118.8'+ url.split('https://prod-live-front.playbattlegrounds.com').join(''),
+            url: `https://${this.assetsIp}${path}`,
             headers: {
-                Host: 'prod-live-front.playbattlegrounds.com',
+                Host: this.assetsUrl,
             },
             gzip: true,
             timeout: 1000,
