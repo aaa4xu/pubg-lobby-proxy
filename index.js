@@ -10,6 +10,6 @@ process.on('unhandledRejection', err => {
     process.exit(-1);
 });
 
-const sslStripServer = new SslStripServer(path.join(__dirname, 'storage', 'https', 'mockserver.crt'), path.join(__dirname, 'storage', 'https', 'mockserver.key'));
 const websocketServer = new WebsocketServer();
 const assetsServer = new AssetsServer(websocketServer, path.join(__dirname, 'storage', 'cache'));
+const sslStripServer = new SslStripServer(path.join(__dirname, 'storage', 'https', 'mockserver.crt'), path.join(__dirname, 'storage', 'https', 'mockserver.key'), assetsServer);
