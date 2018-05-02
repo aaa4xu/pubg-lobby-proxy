@@ -34,12 +34,12 @@ Use Google Chrome for better experience
 2. Выполни `npm install`
 3. Добавь в файл `C:\Windows\System32\drivers\etc\hosts` новые строки
 ```
-127.0.0.1 prod-live-front.playbattlegrounds.com
-127.0.0.1 test-live-front.playbattlegrounds.com
+127.0.0.1 prod-live-entry.playbattlegrounds.com
+127.0.0.1 test-live-entry.playbattlegrounds.com
 ```
 4. Выполни `npm start` для публичного сервера или `npm run start: test` для тестового сервера
 
-Если у тебя уже висит вебсервер на порту `443`, сделай в нем редирект с `front.battlegroundsgame.com` на `127.0.0.1:{порт}` и измени порт в файле `index.js`
+Если у тебя уже висит вебсервер на порту `443`, сделай в нем редирект с `prod-live-entry.playbattlegrounds.com` на `127.0.0.1:{порт}` и измени порт в файле `index.js`
 
 ### Отладка лобби PUBG в браузере
 1. Запусти прокси
