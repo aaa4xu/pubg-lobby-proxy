@@ -7,12 +7,13 @@ Eazy way to view and modify PLAYERUNKNOWN'S BATTLEGROUNDS lobby traffic
 2. Execute `npm install`
 3. Append to file `C:\Windows\System32\drivers\etc\hosts` new lines
 ```
+127.0.0.1 prod-live-front.playbattlegrounds.com
 127.0.0.1 prod-live-entry.playbattlegrounds.com
 127.0.0.1 test-live-entry.playbattlegrounds.com
 ```
 4. Execute `npm start` for production server or `npm run start:test` for test server
 
-If you already have some webserver on port `443`, make redirect from `prod-live-entry.playbattlegrounds.com` to `127.0.0.1:{someport}` and set this port inside `index.js`
+If you already have some webserver on port `443`, make redirect from `prod-live-front.playbattlegrounds.com` to `127.0.0.1:{someport}` and set this port inside `index.js`
 
 ### PUBG Lobby browser debug mode
 1. Start PUBG lobby proxy
@@ -34,12 +35,13 @@ Use Google Chrome for better experience
 2. Выполни `npm install`
 3. Добавь в файл `C:\Windows\System32\drivers\etc\hosts` новые строки
 ```
+127.0.0.1 prod-live-front.playbattlegrounds.com
 127.0.0.1 prod-live-entry.playbattlegrounds.com
 127.0.0.1 test-live-entry.playbattlegrounds.com
 ```
-4. Выполни `npm start` для публичного сервера или `npm run start: test` для тестового сервера
+4. Выполни `npm start` для публичного сервера или `npm run start:test` для тестового сервера
 
-Если у тебя уже висит вебсервер на порту `443`, сделай в нем редирект с `prod-live-entry.playbattlegrounds.com` на `127.0.0.1:{порт}` и измени порт в файле `index.js`
+Если у тебя уже висит вебсервер на порту `443`, сделай в нем редирект с `prod-live-front.playbattlegrounds.com` на `127.0.0.1:{порт}` и измени порт в файле `index.js`
 
 ### Отладка лобби PUBG в браузере
 1. Запусти прокси

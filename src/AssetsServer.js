@@ -32,6 +32,7 @@ class AssetsServer {
 
     start() {
         dnsResolve(this.assetsUrl).then(ips => {
+            console.log('Bluehole assets server ip: ', ips.join(', '));
             this.assetsIp = ips[Math.floor(Math.random()*ips.length)];
             this.express = express();
             this.express.use(bodyParser.json());
@@ -77,9 +78,16 @@ class AssetsServer {
 
     handleIndexRequest(req, res) {
         const requestUri = url.parse(req.url);
+        // console.log(req.headers);
 
         this.getFrontendUri(requestUri.pathname).then(uri => {
-            res.redirect(url.parse(uri).path + (requestUri.search || ''));
+            // Измненение из-за которого все сломано: я отключил редирект на targetUri
+            const targetUri = url.parse(uri).path + (requestUri.search || '');
+            res.redirect(targetUri);
+            //req.url = url.parse(uri).path + (requestUri.search || '');
+            //console.log(req.url);
+            //this.handleFrontendRequest(req, res);
+            // res.end(`<script>location.href="${targetUri}"</script>`)
         });
     }
 

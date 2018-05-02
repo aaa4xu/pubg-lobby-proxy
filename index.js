@@ -15,7 +15,7 @@ const assetsServer = new AssetsServer(
     websocketServer,
     path.join(__dirname, 'storage', 'cache'),
     80,
-    'prod-live-entry.playbattlegrounds.com',
+    'prod-live-front.playbattlegrounds.com',
 );
 
 const sslStripServer = new SslStripServer(
