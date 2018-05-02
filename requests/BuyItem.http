@@ -1,0 +1,12 @@
+POST http://127.0.0.1/api/UserProxyApi/BuyItem/
+Content-Type: application/json
+
+{
+	"arguments": [
+		"itemdesc.10000002",
+		1,
+		700
+	]
+}
+
+###

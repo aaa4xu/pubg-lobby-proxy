@@ -11,5 +11,15 @@ process.on('unhandledRejection', err => {
 });
 
 const websocketServer = new WebsocketServer();
-const assetsServer = new AssetsServer(websocketServer, path.join(__dirname, 'storage', 'cache'));
-const sslStripServer = new SslStripServer(path.join(__dirname, 'storage', 'https', 'mockserver.crt'), path.join(__dirname, 'storage', 'https', 'mockserver.key'), assetsServer);
+const assetsServer = new AssetsServer(
+    websocketServer,
+    path.join(__dirname, 'storage', 'cache'),
+    80,
+    'prod-live-entry.playbattlegrounds.com',
+);
+
+const sslStripServer = new SslStripServer(
+    path.join(__dirname, 'storage', 'https', 'mockserver.crt'),
+    path.join(__dirname, 'storage', 'https', 'mockserver.key'),
+    assetsServer,
+);

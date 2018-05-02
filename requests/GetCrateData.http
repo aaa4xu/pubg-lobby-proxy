@@ -1,0 +1,10 @@
+POST http://127.0.0.1/api/UserProxyApi/GetCrateData/
+Content-Type: application/json
+
+{
+	"arguments": [
+		"itemdesc.10000002"
+	]
+}
+
+###

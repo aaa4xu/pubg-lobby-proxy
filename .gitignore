@@ -1,3 +1,5 @@
 /node_modules
 /.idea
 /main.*.bundle.js
+/storage/dumps
+/public/assets

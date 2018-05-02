@@ -7,12 +7,12 @@ Eazy way to view and modify PLAYERUNKNOWN'S BATTLEGROUNDS lobby traffic
 2. Execute `npm install`
 3. Append to file `C:\Windows\System32\drivers\etc\hosts` new lines
 ```
-127.0.0.1 prod-live-front.playbattlegrounds.com
-127.0.0.1 test-live-front.playbattlegrounds.com
+127.0.0.1 prod-live-entry.playbattlegrounds.com
+127.0.0.1 test-live-entry.playbattlegrounds.com
 ```
 4. Execute `npm start` for production server or `npm run start:test` for test server
 
-If you already have some webserver on port `443`, make redirect from `front.battlegroundsgame.com` to `127.0.0.1:{someport}` and set this port inside `index.js`
+If you already have some webserver on port `443`, make redirect from `prod-live-entry.playbattlegrounds.com` to `127.0.0.1:{someport}` and set this port inside `index.js`
 
 ### PUBG Lobby browser debug mode
 1. Start PUBG lobby proxy
