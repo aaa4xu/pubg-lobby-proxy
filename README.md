@@ -8,7 +8,7 @@ Eazy way to view and modify PLAYERUNKNOWN'S BATTLEGROUNDS lobby traffic
 3. Append to file `C:\Windows\System32\drivers\etc\hosts` new lines
 ```
 127.0.0.1 prod-live-front.playbattlegrounds.com
-127.0.0.1 test-live-front.playbattlegrounds.com
+127.0.0.1 pctest-live-front.playbattlegrounds.com
 ```
 4. Execute `npm start` for production server or `npm run start:test` for test server
 
@@ -35,7 +35,7 @@ Use Google Chrome for better experience
 3. Добавь в файл `C:\Windows\System32\drivers\etc\hosts` новые строки
 ```
 127.0.0.1 prod-live-front.playbattlegrounds.com
-127.0.0.1 test-live-front.playbattlegrounds.com
+127.0.0.1 pctest-live-front.playbattlegrounds.com
 ```
 4. Выполни `npm start` для публичного сервера или `npm run start:test` для тестового сервера
 
